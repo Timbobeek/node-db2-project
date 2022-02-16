@@ -5,7 +5,7 @@ const checkCarId = async (req, res, next) => {
   try {
     const car = await Car.getById(req.params.id);
     if (!car) {
-      next({ status: 404, message: "car with id this is not found" }); ///we use next so that we go to the error logger md (and gives us stack in addition to error message)
+      next({ status: 404, message: `car with id ${req.params.id} is not found` }); ///we use next so that we go to the error logger md (and gives us stack in addition to error message)
     } else {
       req.car = car; ///need this explained!
       next();
@@ -48,8 +48,17 @@ const checkVinNumberValid = (req, res, next) => {
   }
 };
 
-const checkVinNumberUnique = (req, res, next) => {
-  // DO YOUR MAGIC
+const checkVinNumberUnique = async (req, res, next) => {
+  try{
+    const existing = await Car.getByVin(req.body.vin)
+    if(!existing){
+      next()
+    } else {
+      next({status:400, message: `vin ${req.body.vin} already exists`})
+    }
+  } catch (err){
+    next(err)
+  }
 };
 
 module.exports = {
